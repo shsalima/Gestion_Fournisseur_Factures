@@ -1,0 +1,26 @@
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+
+dotenv.config()
+const app=express()
+app.use(express.json())
+
+const url_mongodb=process.env.MONGODB_URL
+const port=process.env.PORT ||8000
+
+app.listen(port,async()=>{
+    console.log(`server runing in port ${port}`)
+    try{
+        await mongoose.connect(url_mongodb)
+        console.log("mongoDB connected ")
+
+    }catch(err){
+       console.error("Erreur lors du démarrage du serveur",err.message)
+
+
+}}
+)
+
+
