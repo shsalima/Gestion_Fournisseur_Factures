@@ -1,6 +1,7 @@
 import { body, validationResult } from "express-validator";
 import User from "../models/User.js";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const registerValidate = [
   body("name")
@@ -27,110 +28,85 @@ export const registerValidate = [
     .custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error(
-          "mot de passe de confirmation pas le même mot de passe"
+          "mot de passe de confirmation pas le même mot de passe",
         );
       }
       return true;
     }),
-    body("role")
+  body("role")
     .optional()
-    .isIn(["admin","client"])
-    .withMessage("role doit être client ou admin")
+    .isIn(["admin", "client"])
+    .withMessage("role doit être client ou admin"),
 ];
-
-
 
 // validation pour login
 export const loginValidation = [
+  body("email").isEmail().withMessage("email invalide"),
 
-    body("email")
-    .isEmail()
-    .withMessage("email invalide"),
+  body("password").notEmpty().withMessage("password obligatoire"),
+];
 
-    body("password")
-    .notEmpty()
-    .withMessage("password obligatoire")
+export const handleErrors = (req, res, next) => {
+  const errors = validationResult(req);
 
-]
-
-
-
-
-
-export const handleErrors = (req,res,next)=>{
-
-    const errors = validationResult(req)
-
-    if(!errors.isEmpty()){
-        return res.status(400).json({errors:errors.array()})
-    }
-
-    next()
-}
-
-export const checkEmail =  async(req,res,next)=>{
-    const {email}=req.body
-    try{
-
-        const exsitEmail=await User.findOne({email})
-        if(exsitEmail){
-            return res.status(400).json({message:"Email déjà utilisé"})
-        }
-        next()
-    }catch(err){
-        return res.status(500).json({message:err.message})
-    }
-}
-
-export const loginCheckEmailPasseword=async(req,res,next)=>{
-  const {email,password}=req.body
-  try{
-
-    const user=await User.findOne({email})
-    if(!user){
-      return res.status(404).json({message:"cette user non trouvé"})
-    }
-    const verfyPassword= await bcrypt.compare(password,user.password)
-    if(!verfyPassword){
-      return res.status(400).json({message:"mot de passe incorrecte"})
-    }
-    req.user=user
-    
-    next()
-  }catch(err){
-    return res.status(500).json({message:err.message})
-  }
-}
-
-
-
-export const verifyToken=async(req,res,next)=>{
-  try{
-
-    const header=req.headers.authorization
-    if(!header || !header.startsWith("Bearer ")){
-      return res.status(401).json({message:"Non autorisé, token manquant"})
-    }
-    const token=header.split(" ")[1]
-    const decoded=jwt.verify(token,process.env.JWT_SECRET)
-    const user=await User.findById(decoded.id).select("-password")
-
-
-    if(!user){
-      return res.status(401).json({message:"utilisateur introuvable"})
-    }
-    
-    req.user=user
-    next()
-  }catch(err){
-    return res.status(401).json({message:"token invalide"})
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
 
+  next();
+};
 
-}
+export const checkEmail = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    const exsitEmail = await User.findOne({ email });
+    if (exsitEmail) {
+      return res.status(400).json({ message: "Email déjà utilisé" });
+    }
+    next();
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
 
+export const loginCheckEmailPasseword = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "cette user non trouvé" });
+    }
+    const verfyPassword = await bcrypt.compare(password, user.password);
+    if (!verfyPassword) {
+      return res.status(400).json({ message: "mot de passe incorrecte" });
+    }
+    req.user = user;
 
+    next();
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
 
+export const verifyToken = async (req, res, next) => {
+  try {
+    const header = req.headers.authorization;
+    if (!header || !header.startsWith("Bearer")) {
+      return res.status(401).json({ message: "Non autorisé, token manquant" });
+    }
+    const token = header.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    
+    const user = await User.findById(decoded.id).select("-password");
 
+    if (!user) {
+      return res.status(401).json({ message: "utilisateur introuvable" });
+    }
 
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "token invalide",error:err.message });
+  }
+};

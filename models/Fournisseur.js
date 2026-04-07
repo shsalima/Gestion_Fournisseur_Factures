@@ -28,4 +28,5 @@ const fournisseurSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Fournisseur", fournisseurSchema);
+const Fournisseur=mongoose.model("Fournisseur", fournisseurSchema);
+export default Fournisseur;
