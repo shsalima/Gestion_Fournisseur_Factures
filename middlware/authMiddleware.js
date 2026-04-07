@@ -1,5 +1,6 @@
 import { body, validationResult } from "express-validator";
 import User from "../models/User.js";
+import bcrypt from "bcrypt"
 
 export const registerValidate = [
   body("name")
@@ -86,7 +87,7 @@ export const loginCheckEmailPasseword=async(req,res,next)=>{
   try{
 
     const user=await User.findOne({email})
-    if(!emailexis){
+    if(!user){
       return res.status(404).json({message:"cette user non trouvé"})
     }
     const verfyPassword= await bcrypt.compare(password,user.password)
@@ -99,6 +100,33 @@ export const loginCheckEmailPasseword=async(req,res,next)=>{
   }catch(err){
     return res.status(500).json({message:err.message})
   }
+}
+
+
+
+export const verifyToken=async(req,res,next)=>{
+  try{
+
+    const header=req.headers.authorization
+    if(!header || !header.startsWith("Bearer ")){
+      return res.status(401).json({message:"Non autorisé, token manquant"})
+    }
+    const token=header.split(" ")[1]
+    const decoded=jwt.verify(token,process.env.JWT_SECRET)
+    const user=await User.findById(decoded.id).select("-password")
+
+
+    if(!user){
+      return res.status(401).json({message:"utilisateur introuvable"})
+    }
+    
+    req.user=user
+    next()
+  }catch(err){
+    return res.status(401).json({message:"token invalide"})
+  }
+
+
 }
 
 
