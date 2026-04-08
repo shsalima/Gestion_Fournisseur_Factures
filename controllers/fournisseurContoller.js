@@ -17,3 +17,44 @@ export const createFournissoeur=async(req,res)=>{
         res.status(500).json({message:err.message})
     }
 }
+
+
+
+
+
+
+
+
+export const getFournisseurs = async (req, res) => {
+  try {
+    const { page=1, limit=10, name } = req.query;
+
+    
+    const query = {user: req.user._id,};
+
+    if (name) {
+      query.name = { $regex: name, $options: "i" }; 
+    }
+
+  
+    const skip = (page - 1) * limit;
+
+    const suppliers = await Fournisseur.find(query)
+      .select("name email phone address createdAt") 
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+   
+
+    return res.status(200).json({
+      page: parseInt(page),
+      limit: parseInt(limit),
+       fournisseurs: suppliers
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};

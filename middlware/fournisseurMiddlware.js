@@ -2,6 +2,48 @@ import Fournisseur from "../models/Fournisseur.js"
 
 
 
+import { body, validationResult } from "express-validator";
+
+
+export const fournisseurValidate = [
+  body("name")
+    .notEmpty()
+    .withMessage("Le champ name est obligatoire")
+    .isLength({ min: 2 })
+    .withMessage("le name doit contenir au moins 2 caracter"),
+
+  body("email")
+    .optional()
+    .isEmail()
+    .withMessage("format email invalide"),
+
+  body("phone")
+    .optional()
+    .isString()
+    .withMessage("phone doit etre une chaine de caractére"),
+
+  body("adress")
+    .optional()
+    .isString()
+    .withMessage("adress doit etre une chaine de caractére"),
+
+
+
+];
+export const handleErrors = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  next();
+};
+
+
+
+
+
 export const verfyEmailFourniseur=async(req,res,next)=>{
     const {email}=req.body
 
