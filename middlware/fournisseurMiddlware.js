@@ -54,3 +54,17 @@ export const verfyEmailFourniseur=async(req,res,next)=>{
     next()
 
 }
+
+export const checkfournissuerOfClientAuth=async(req,res,next)=>{
+        const {id}=req.params
+        const fournisseur=await Fournisseur.findById(id)
+           if(!fournisseur){
+        return res.status(404).json({message:"cette fournisseur ne trouve pas"})
+    }
+    if(fournisseur.user.toString() !==req.user._id.toString()){
+        return res.status(403).json({message:"n'a  pas  l'accés de client  à cette fournisseur "})
+    }
+    req.fournisseur=fournisseur
+    next()
+
+}
