@@ -72,3 +72,36 @@ export const getFactures=async (req,res)=>{
     res.status(500).json({ message: error.message });
   }
 }
+
+
+
+export const getFactureId = async (req, res) => {
+  try {
+    const facture = await Facture.findOne({
+      _id: req.params.id,
+      userId: req.user.id,
+    }).populate("supplierId", "name");
+
+    if (!facture) {
+      return res.status(404).json({ message: "Facture non trouvé" });
+    }
+
+    res.status(200).json({
+      id: facture._id,
+      supplierId: facture.supplierId._id,
+      supplierName: facture.supplierId.name,
+      amount: facture.amount,
+      dueDate: facture.dueDate,
+      description: facture.description,
+      status: facture.status,
+      totalPaid: facture.totalPaid,
+      remainingAmount: facture.amount - facture.totalPaid,
+      createdAt: facture.createdAt,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+

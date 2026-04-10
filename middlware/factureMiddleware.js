@@ -49,3 +49,25 @@ export const  checkSupplier=async(req,res,next)=>{
         return res.status(500).json({message:err.message})
     }
 }
+
+
+export const  checkeFacture =async(req,res,next)=>{
+    try{
+        const userId=req.user.id
+        const factureId=req.params.id
+
+
+        const facture=await Facture.findById(factureId)
+
+        if(!facture){
+            return res.status(404).json({message:"facture non trouvé"})
+        }
+
+        if(facture.userId.toString() !==userId){
+            return res.status(403).json({message:"accés refusé"})
+        }
+        req.facture=facture
+
+
+    }
+}
