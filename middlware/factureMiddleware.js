@@ -1,6 +1,7 @@
 // middlewares/invoice.validation.js
 import { body, validationResult } from "express-validator"
 import Fournisseur from "../models/Fournisseur.js";
+import Facture from "../models/Facture.js";
 
 export const validateFacture = [
   body("supplierId")
@@ -50,7 +51,7 @@ export const  checkSupplier=async(req,res,next)=>{
     }
 }
 
-
+// update facture middleware
 export const  checkeFacture =async(req,res,next)=>{
     try{
         const userId=req.user.id
@@ -63,11 +64,15 @@ export const  checkeFacture =async(req,res,next)=>{
             return res.status(404).json({message:"facture non trouvé"})
         }
 
-        if(facture.userId.toString() !==userId){
-            return res.status(403).json({message:"accés refusé"})
-        }
-        req.facture=facture
+      if(facture.userId.toString()!==userId){
+        return res.status(403).json({message:"accés refusé"})
+      }
+      req.facture=facture
+      next()
 
 
+    }catch(err){
+        return res.status(500).json({message:err.message})
     }
 }
+

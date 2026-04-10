@@ -104,4 +104,67 @@ export const getFactureId = async (req, res) => {
 };
 
 
+export const updateFacture=async(req,res)=>{
+    try{
+        const facture=req.facture
+        const {amount,dueDate,description,status}=req.body
+
+        if(facture.status==="paid"){
+            return res.status(400).json({message:"impossible de modifier une facture payée"})
+        }
+
+
+        if(amount){
+            facture.amount=amount
+            // facture.remainingAmount=amount-facture.totalPaid
+        }
+        if(dueDate){
+            facture.dueDate=dueDate
+        }
+        if(description){
+            facture.description=description
+        }
+        if(status){
+            facture.status=status
+        }
+// totalPaid => howa dak facture ch7al tkhalss fiha 
+// amount => howa dak facture ch7al kan fih
+// remainingAmount => howa dak facture ch7al b9a fih bach ytkhlas
+
+
+
+            // hado normalement ma kaynch 7it totalPaid w remainingAmount ma kaytbdlou ghir m3a l paiement dyal facture
+            // hado kahss ykounou m3a controller dyal paiement
+        // if(facture.totalPaid>=facture.amount){
+        //     facture.status="paid"
+
+
+        // }else if(facture.totalPaid>0){
+        //     facture.status="partially_paid"
+        // }else{
+        //     facture.status="unpaid"
+        // }
+
+
+        const updatedFacture=await facture.save()
+        res.status(200).json({message:"facture updated",facture:updatedFacture})
+    }catch(err){
+        res.status(500).json({message:err.message})     
+
+    }
+}
+
+ export const deleteFacture=async(req,res)=>{
+    try{
+
+        const facture=req.facture
+        await facture.deleteOne()
+        res.status(200).json({message:"facture supprimé"})
+    }   catch(err){
+        res.status(500).json({message:err.message})             }}
+
+
+
+
+
 

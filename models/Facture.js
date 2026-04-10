@@ -30,7 +30,7 @@ const factureSchema = new mongoose.Schema(
       default: "unpaid",
     },
     totalPaid: {
-  type: Number,
+   type: Number,
   default: 0,
 },
   },
