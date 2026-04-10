@@ -29,6 +29,10 @@ const factureSchema = new mongoose.Schema(
       enum: ["unpaid", "partially_paid", "paid"],
       default: "unpaid",
     },
+    totalPaid: {
+  type: Number,
+  default: 0,
+},
   },
   { timestamps: true }
 );
