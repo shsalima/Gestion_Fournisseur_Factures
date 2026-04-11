@@ -1,18 +1,18 @@
-import Facture from "../models/Facture"
-import Paiement from "../models/Paiement"
+import Facture from "../models/Facture.js"
+import Paiement from "../models/Paiement.js"
 
 
 export const checkFactureIdpaiment=async(req,res,next)=>{
     try{
 
-        const factureId=req.params.factureId
+        const factureId=req.params.id
     
         const facture=await Facture.findById(factureId)
     
         if(!facture){
-            return res.status(404).json({message:"facture non trouvé"})
+            return res.status(404).json({message:"facture hhhhh non trouvé"})
         }
-        if(facture.user.toString() !==req.user.id){
+        if(facture.userId.toString() !==req.user.id){
             return res.status(403).json({message:"accés interdit"})
         }
         req.facture=facture

@@ -1,4 +1,4 @@
-import Paiement from "../models/Paiement"
+import Paiement from "../models/Paiement.js"
 
 
 
@@ -12,7 +12,7 @@ export const createPaiement=async(req,res)=>{
             // ch7al khalss fiha
             facture.totalPaid=pauments.reduce((total,payment)=>total+payment.amount,0)
         
-           
+        
             // ch7al ba9i fiha
             
           facture.remianingAmount=facture.amount-facture.totalPaid
@@ -31,13 +31,14 @@ export const createPaiement=async(req,res)=>{
             })
 
 
-            const newtotal=totalPaid+amount
+            const newtotal=facture.totalPaid+amount
             if(newtotal === facture.amount){
                 facture.status="paid"
             }else{
                 facture.status="partially_paid"
             }
             await facture.save()
+            await paiement.save()
 
             res.status(201).json({message:"paiement créé avec succés",paiement})    
     }catch(err){
