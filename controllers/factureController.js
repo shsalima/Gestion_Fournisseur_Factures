@@ -146,6 +146,7 @@ export const updateFacture=async(req,res)=>{
         // }
 
 
+
         const updatedFacture=await facture.save()
         res.status(200).json({message:"facture updated",facture:updatedFacture})
     }catch(err){
@@ -154,14 +155,19 @@ export const updateFacture=async(req,res)=>{
     }
 }
 
- export const deleteFacture=async(req,res)=>{
+export const deleteFacture=async(req,res)=>{
     try{
 
         const facture=req.facture
-        await facture.deleteOne()
-        res.status(200).json({message:"facture supprimé"})
-    }   catch(err){
-        res.status(500).json({message:err.message})             }}
+    
+        facture.deleteOne()
+         res.status(200).json({message:"facture est supprimé avec succe"})
+    }catch(err){
+        return res.status(500).json({message:err.message})
+    }
+
+
+}
 
 
 
