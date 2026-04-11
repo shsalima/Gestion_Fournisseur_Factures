@@ -163,7 +163,7 @@ export const deleteFacture=async(req,res)=>{
         facture.deleteOne()
          res.status(200).json({message:"facture est supprimé avec succe"})
     }catch(err){
-        return res.status(500).json({message:err.message})
+       
     }
 
 
