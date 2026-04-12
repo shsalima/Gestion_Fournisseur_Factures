@@ -45,3 +45,18 @@ export const createPaiement=async(req,res)=>{
         return res.status(500).json({message:err.message})
     }
 }
+
+
+
+
+export const getPaiementByFacture=async(req,res)=>{
+    try{
+      
+        const factureId=req.params.id
+        console.log(factureId)
+        const paiements=await Paiement.find({factureId:factureId})
+        res.status(200).json(paiements)
+    }catch(err){
+        return res.status(500).json({message:err.message})
+    }           
+}
