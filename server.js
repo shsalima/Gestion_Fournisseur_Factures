@@ -5,6 +5,7 @@ import authRoute from "./routes/authRoute.js";
 import fournisseurRoute from "./routes/fournisseurRoutes.js";
 import factureRoute from "./routes/facturesRoutes.js";
 import dashboardRoute from "./routes/dashboardRoutes.js";
+import adminRoute from "./routes/adminRoutes.js";
 
 
 dotenv.config()
@@ -14,6 +15,7 @@ app.use("/api/auth",authRoute)
 app.use("/api/suppliers",fournisseurRoute)
 app.use("/api/invoices",factureRoute)
 app.use("/api/dashboard",dashboardRoute)
+app.use("/api/admin", adminRoute)
 
 const url_mongodb=process.env.MONGODB_URL
 const port=process.env.PORT ||8000
