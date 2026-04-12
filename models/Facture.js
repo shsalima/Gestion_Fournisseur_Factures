@@ -35,7 +35,9 @@ const factureSchema = new mongoose.Schema(
 },
     remianingAmount: {
    type: Number,
-  default: 0,
+  default: function() {
+    return this.amount;
+  },
 },
   },
   { timestamps: true }
