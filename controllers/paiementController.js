@@ -2,61 +2,109 @@ import Paiement from "../models/Paiement.js"
 
 
 
-export const createPaiement=async(req,res)=>{
-    try{
-        const facture=req.facture
-        const {amount,paymentDate,mode_paiement,note}=req.body
-        const factureId=req.params.id
-        
-            const pauments=await Paiement.find({facture:factureId})
-            // ch7al khalss fiha
-            facture.totalPaid=pauments.reduce((total,payment)=>total+payment.amount,0)
-        
-        
-            // ch7al ba9i fiha
-            
-          facture.remianingAmount=facture.amount-facture.totalPaid
-            if(amount>facture.remianingAmount || amount + facture.totalPaid>facture.amount){
-                return res.status(400).json({message:`montant de paiment dépasse montant restant a payée ${facture.remianingAmount}`})
-            }
 
-            const paiement=await Paiement.create({
-                factureId:factureId,
-                userId:req.user.id,
-                amount,
-                paymentDate,
-                mode_paiement,
-                note,
+export const createPaiement = async (req, res) => {
+  try {
+    const facture = req.facture;
+    const { amount, paymentDate, mode_paiement, note } = req.body;
 
-            })
+   
+    const payments = await Paiement.find({
+      factureId: facture._id,
+    });
 
+    const totalPaid = payments.reduce(
+      (sum, p) => sum + p.amount,
+      0);
 
-            const newtotal=facture.totalPaid+amount
-            if(newtotal === facture.amount){
-                facture.status="paid"
-            }else{
-                facture.status="partially_paid"
-            }
-            await facture.save()
-            await paiement.save()
+    const remainingAmount = facture.amount - totalPaid;
 
-            res.status(201).json({message:"paiement créé avec succés",paiement})    
-    }catch(err){
-        return res.status(500).json({message:err.message})
+    
+    if (amount > remainingAmount) {
+      return res.status(422).json({
+        message: `Montant dépasse le restant: ${remainingAmount}`,
+      });
     }
-}
+
+    
+    const paiement = await Paiement.create({
+      factureId: facture._id,  
+      userId: req.user.id,     
+      amount,
+      paymentDate,
+      mode_paiement,
+      note,
+    });
+
+  
+    const newTotal = totalPaid + amount;
+
+    facture.totalPaid = newTotal;
+    facture.remianingAmount = facture.amount - newTotal; 
+
+    if (newTotal === facture.amount) {
+      facture.status = "paid";
+    } else {
+      facture.status = "partially_paid";
+    }
+
+    await facture.save();
+
+    return res.status(201).json({
+      message: "paiement créé avec succès",
+      paiement,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
 
 
 
 
-export const getPaiementByFacture=async(req,res)=>{
-    try{
-      
-        const factureId=req.params.id
-        console.log(factureId)
-        const paiements=await Paiement.find({factureId:factureId})
-        res.status(200).json(paiements)
-    }catch(err){
-        return res.status(500).json({message:err.message})
-    }           
-}
+
+
+
+
+
+
+
+
+
+
+
+
+export const getPaiementByFacture = async (req, res) => {
+  try {
+    const facture = req.facture;
+
+
+    const paiements = await Paiement.find({factureId: facture._id,});
+
+
+    const totalPaid = paiements.reduce((sum, p) => sum + p.amount, 0);
+
+   
+    const remianingAmount = facture.amount - totalPaid;
+
+    return res.status(200).json({
+      payments: paiements.map((p) => ({
+        id: p._id,
+        factureId: p.factureId,
+        userId: p.user,
+        amount: p.amount,
+        paymentDate: p.paymentDate,
+        mode_paiement: p.mode_paiement,
+        createdAt: p.createdAt,
+      })),
+
+      result: {
+        totalPaid,
+        remianingAmount,
+        status: facture.status,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
