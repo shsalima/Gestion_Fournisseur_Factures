@@ -27,8 +27,22 @@ export const getStat=async(req,res)=>{
     
 const pourcentage = AllFacturesFournisseur === 0 ? 0 : (totalAmount / AllFacturesFournisseur.length) * 100;
 
+const invoicesByStatus = factures.reduce((acc, facture) => {
+    if(facture.status === "paid"){
+        acc.paid +=1
+    }else if(facture.status=== "partially_paid"){
+        acc.partially_paid +=1
+    }else if(facture.status ==="unpaid"){
+        acc.unpaid +=1
+    }
+    return acc
+},{paid:0,partially_paid:0,unpaid:0})
+
+
+
+
         
-        return res.status(200).json({totalInvoices, totalAmount,totalPaid,totalRemaining,pourcentage})
+        return res.status(200).json({totalInvoices, totalAmount,totalPaid,totalRemaining,pourcentage,invoicesByStatus})
 
     }catch(err){
             return res.status(500).json({message:err.message})
