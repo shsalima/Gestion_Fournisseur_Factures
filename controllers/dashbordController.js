@@ -5,27 +5,21 @@ import Fournisseur from "../models/Fournisseur.js"
 
 export const getDashbordDT=async(req,res)=>{
     try{
-        const userId=new mongoose.Types.ObjectId(req.user.id)
+        const userId=req.user.id
+        const factures = await Facture.find({
+      userId: userId,
+    });
         const totalFournisseurs=await Fournisseur.countDocuments({user:userId})
         const totalInvoices=await Facture.countDocuments({userId:userId})
-        const totalAmountAgg=await Facture.aggregate([
-            {
-                $match:{userId: userId}
-            },
-            {
-                $group:{
-                    _id:null,
-                    total:{$sum:"$amount"}
-                }
+       const totalAmount=factures.reduce(
+      (sum, f) => sum + f.amount,
+      0
+    );
+    const totalPaid = factures.reduce((sum, f) => sum + f.totalPaid, 0);
+    const totalRemaining = totalAmount - totalPaid;
 
-            }
 
-        ])
-          const totalAmount =
-      totalAmountAgg.length > 0
-        ? totalAmountAgg[0].total
-    : 0;
-        return res.status(200).json({totalFournisseurs, totalInvoices, totalAmount})
+        return res.status(200).json({totalFournisseurs, totalInvoices, totalAmount,totalPaid, totalRemaining})
         
       
     }catch(err){
