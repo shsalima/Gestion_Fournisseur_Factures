@@ -17,9 +17,19 @@ export const getDashbordDT=async(req,res)=>{
     );
     const totalPaid = factures.reduce((sum, f) => sum + f.totalPaid, 0);
     const totalRemaining = totalAmount - totalPaid;
+    const invoicesByStatus = factures.reduce((acc, facture) => {
+    if(facture.status === "paid"){
+        acc.paid +=1
+    }else if(facture.status=== "partially_paid"){
+        acc.partially_paid +=1
+    }else if(facture.status ==="unpaid"){
+        acc.unpaid +=1
+    }
+    return acc
+},{paid:0,partially_paid:0,unpaid:0})
 
 
-        return res.status(200).json({totalFournisseurs, totalInvoices, totalAmount,totalPaid, totalRemaining})
+        return res.status(200).json({totalFournisseurs, totalInvoices, totalAmount,totalPaid, totalRemaining, invoicesByStatus})
         
       
     }catch(err){
