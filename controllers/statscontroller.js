@@ -13,10 +13,28 @@ export const getStat=async(req,res)=>{
         const totalInvoices=factures.length
 
         const totalAmount=factures.reduce((sum,f)=>sum +=f.amount,0)
+
+        const totalPaid =factures.reduce((sum,f)=>sum +=f.totalPaid,0)
+        const totalRemaining=factures.reduce((sum,f)=>sum +=f.remianingAmount,0)
+
+// totalAllFournisseur => total amount for all fournisseur for the user
+        const AllFacturesFournisseur= await Facture.find({userId:req.user.id})
+        console.log(AllFacturesFournisseur)
+        // totalAllAmontFourniseur => total amount for all fournisseur for the user
+        const totalAllAmontFourniseur=AllFacturesFournisseur.reduce((sum,f)=>sum +=f.amount,0)
+        console.log(totalAllAmontFourniseur)
+       
+    
+const pourcentage = AllFacturesFournisseur === 0 ? 0 : (totalAmount / AllFacturesFournisseur.length) * 100;
+
         
-        return res.status(200).json({totalInvoices, totalAmount})
+        return res.status(200).json({totalInvoices, totalAmount,totalPaid,totalRemaining,pourcentage})
 
     }catch(err){
             return res.status(500).json({message:err.message})
 }
     }
+
+
+
+
