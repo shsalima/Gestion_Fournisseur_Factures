@@ -1,5 +1,6 @@
 import Facture from "../models/Facture.js"
 import Fournisseur from "../models/Fournisseur.js"
+import Paiement from "../models/Paiement.js"
 
 
 
@@ -30,7 +31,7 @@ export const getFactures=async (req,res)=>{
 
         const userId=req.user.id
 
-        const{ status,supplierId,page=1,limit=15}=req.query
+        const{ status,supplierId}=req.query
 
         const filter={userId}
 
@@ -42,13 +43,12 @@ export const getFactures=async (req,res)=>{
             filter.supplierId=supplierId
         }
 
-        const skip=(page-1)*limit
+        
 
         const facture=await Facture.find(filter)
         .populate("supplierId","name")
         .sort({createAt:-1})
-        .skip(skip)
-        .limit(Number(limit))
+       
 
 
         const factues= facture.map((f)=>({
@@ -67,7 +67,7 @@ export const getFactures=async (req,res)=>{
 
         } )
     )
-    res.status(200).json({ page: Number(page),factues});
+    res.status(200).json({factues});
     }catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -104,70 +104,68 @@ export const getFactureId = async (req, res) => {
 };
 
 
-export const updateFacture=async(req,res)=>{
-    try{
-        const facture=req.facture
-        const {amount,dueDate,description,status}=req.body
+export const updateFacture = async (req, res) => {
+  try {
+    const facture = req.facture;
 
-        if(facture.status==="paid"){
-            return res.status(400).json({message:"impossible de modifier une facture payée"})
-        }
-
-
-        if(amount){
-            facture.amount=amount
-            // facture.remainingAmount=amount-facture.totalPaid
-        }
-        if(dueDate){
-            facture.dueDate=dueDate
-        }
-        if(description){
-            facture.description=description
-        }
-        if(status){
-            facture.status=status
-        }
-// totalPaid => howa dak facture ch7al tkhalss fiha 
-// amount => howa dak facture ch7al kan fih
-// remainingAmount => howa dak facture ch7al b9a fih bach ytkhlas
-
-
-
-            // hado normalement ma kaynch 7it totalPaid w remainingAmount ma kaytbdlou ghir m3a l paiement dyal facture
-            // hado kahss ykounou m3a controller dyal paiement
-        // if(facture.totalPaid>=facture.amount){
-        //     facture.status="paid"
-
-
-        // }else if(facture.totalPaid>0){
-        //     facture.status="partially_paid"
-        // }else{
-        //     facture.status="unpaid"
-        // }
-
-
-
-        const updatedFacture=await facture.save()
-        res.status(200).json({message:"facture updated",facture:updatedFacture})
-    }catch(err){
-        res.status(500).json({message:err.message})     
-
-    }
-}
-
-export const deleteFacture=async(req,res)=>{
-    try{
-
-        const facture=req.facture
     
-        facture.deleteOne()
-         res.status(200).json({message:"facture est supprimé avec succe"})
-    }catch(err){
-        return res.status(500).json({message:err.message})
+    if (facture.status === "paid") {
+      return res.status(422).json({
+        message: "impossible de modifier une facture payée",
+      });
     }
 
+    const { dueDate, description } = req.body;
 
-}
+ 
+   
+    if (dueDate) facture.dueDate = dueDate;
+    if (description) facture.description = description;
+
+    const updatedFacture = await facture.save();
+
+    return res.status(200).json({
+      message: "facture modifier avec succés",
+      facture: updatedFacture,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+
+
+export const deleteFacture = async (req, res) => {
+  try {
+    const facture = req.facture;
+
+ 
+    const payments = await Paiement.find({ factureId: facture._id });
+
+    if (payments.length > 0) {
+      return res.status(422).json({
+        message:
+          "suppression impossible des paiements existent pour cette facture",
+      });
+    }
+
+  
+    await facture.deleteOne();
+
+    return res.status(200).json({
+      message: "facture supprimée succés",
+    });
+
+   
+
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
 
 
 
