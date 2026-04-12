@@ -13,6 +13,7 @@ import {
   getSupplier,
   modifierFournisseur,
 } from "../controllers/fournisseurContoller.js";
+import { getStat } from "../controllers/statscontroller.js";
 
 const fournisseurRoute = express.Router();
 
@@ -44,5 +45,6 @@ fournisseurRoute.put(
   fournisseurValidate,
   modifierFournisseur,
 );
+fournisseurRoute.get("/:id/stats", verifyToken,checkfournissuerOfClientAuth,getStat);
 
 export default fournisseurRoute;
