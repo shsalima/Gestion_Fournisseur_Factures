@@ -1,4 +1,4 @@
-// models/payment.js
+
 
 import mongoose from "mongoose";
 

@@ -60,23 +60,6 @@ export const createPaiement = async (req, res) => {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getPaiementByFacture = async (req, res) => {
   try {
     const facture = req.facture;

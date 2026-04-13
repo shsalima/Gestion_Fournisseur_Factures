@@ -30,10 +30,12 @@ export const getFactures=async (req,res)=>{
     try{
 
         const userId=req.user.id
+        
 
         const{ status,supplierId}=req.query
 
         const filter={userId}
+
 
         if(status){
             filter.status=status

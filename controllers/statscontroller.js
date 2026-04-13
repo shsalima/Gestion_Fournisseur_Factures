@@ -2,7 +2,6 @@ import Facture from "../models/Facture.js"
 import Fournisseur from "../models/Fournisseur.js"
 
 
-
 export const getStat=async(req,res)=>{
     try{
         const id=req.params.id
