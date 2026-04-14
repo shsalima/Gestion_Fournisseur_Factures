@@ -18,7 +18,7 @@ export const getStat=async(req,res)=>{
 
 // totalAllFournisseur => total amount for all fournisseur for the user
         const AllFacturesFournisseur= await Facture.find({userId:req.user.id})
-        console.log(AllFacturesFournisseur)
+        
         // totalAllAmontFourniseur => total amount for all fournisseur for the user
         const totalAllAmontFourniseur=AllFacturesFournisseur.reduce((sum,f)=>sum +=f.amount,0)
         console.log(totalAllAmontFourniseur)

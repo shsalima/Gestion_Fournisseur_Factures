@@ -1,3 +1,4 @@
+import Facture from "../models/Facture.js";
 import Paiement from "../models/Paiement.js"
 
 
@@ -36,7 +37,7 @@ export const createPaiement = async (req, res) => {
       note,
     });
 
-  
+    
     const newTotal = totalPaid + amount;
 
     facture.totalPaid = newTotal;
@@ -94,3 +95,37 @@ export const getPaiementByFacture = async (req, res) => {
     return res.status(500).json({ message: err.message });
   }
 };
+
+
+export const anullePaiement=async(req,res)=>{
+  const id=req.params.id
+  const userId=req.user
+
+
+  const paiement =await Paiement.findById({_id:id,userId:userId})
+  if(!paiement){
+    return res.status(404).jso({message:"paiment non trouvé"})
+  }
+  const facture= await Facture.find(paiement)
+
+  const totalPaid=facture.totalPaid
+  const newTotalPaid =totalPaid-paiement.amount
+  const remeingAmount= facture.remainingAmount+ newTotalPaid
+
+  if(newTotalPaid== facture.amount){
+    facture.status="paid"
+  }else{
+    facture.status="partially_paid"
+  }
+  
+    await paiement.deleteOne()
+    
+
+
+
+
+  
+  
+
+
+}
